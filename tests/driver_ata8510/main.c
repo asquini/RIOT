@@ -255,6 +255,7 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
     random_init(RAND_SEED);
 
     time_between_tx = 1000000U;
+numtx=25;
     while (1) {
         xtimer_periodic_wakeup(&last_wakeup, time_between_tx);
         printf("state: %d\n", ata8510_get_state(dev));
@@ -262,7 +263,7 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
         sprintf(msg2, "%d%06d_", ID8510, numtx);
         checksum = fletcher16((const uint8_t*)msg2, strlen(msg2));
         sprintf(msg, "%s%02x", msg2, checksum);
-        for(i=strlen(msg);i<ATA8510_MAX_PKT_LENGTH-1;i++){ msg[i] = 'A' + (numtx % 27) -1; }
+        for(i=strlen(msg);i<ATA8510_MAX_PKT_LENGTH-1;i++){ msg[i] = 'A' + (numtx - 1) % 26; }
         msg[ATA8510_MAX_PKT_LENGTH-1]='.';
         msg[ATA8510_MAX_PKT_LENGTH]=0;
         numtx++;
