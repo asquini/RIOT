@@ -255,7 +255,6 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
     random_init(RAND_SEED);
 
     time_between_tx = 1000000U;
-numtx=25;
     while (1) {
         xtimer_periodic_wakeup(&last_wakeup, time_between_tx);
         printf("state: %d\n", ata8510_get_state(dev));
