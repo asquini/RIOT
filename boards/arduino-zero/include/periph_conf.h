@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014-2015 Freie Universität Berlin
+ * Copyright (C)  2016 Freie Universität Berlin
+ *                2016 Inria
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -7,16 +8,16 @@
  */
 
 /**
- * @ingroup     boards_samr21-xpro
+ * @ingroup     boards_arduino-zero
  * @{
  *
  * @file
- * @brief       Configuration of CPU peripherals for the Atmel SAM R21 Xplained
- *              Pro board
+ * @brief       Configuration of CPU peripherals for Arduino Zero board
  *
  * @author      Thomas Eichinger <thomas.eichinger@fu-berlin.de>
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  * @author      Peter Kietzmann <peter.kietzmann@haw-hamburg.de>
+ * @author      Alexandre Abadie <alexandre.abadie@inria.fr>
  */
 
 #ifndef PERIPH_CONF_H_
@@ -97,6 +98,7 @@ extern "C" {
 #define TIMER_1_CHANNELS    2
 #define TIMER_1_MAX_VALUE   (0xffffffff)
 #define TIMER_1_ISR         isr_tc4
+
 /** @} */
 
 /**
@@ -105,26 +107,26 @@ extern "C" {
  */
 static const uart_conf_t uart_config[] = {
     {
-        .dev    = &SERCOM0->USART,
-        .rx_pin = GPIO_PIN(PA,5),
-        .tx_pin = GPIO_PIN(PA,4),
+        .dev    = &SERCOM5->USART,
+        .rx_pin = GPIO_PIN(PB,23),
+        .tx_pin = GPIO_PIN(PB,22),
         .mux    = GPIO_MUX_D,
-        .rx_pad = UART_PAD_RX_1,
-        .tx_pad = UART_PAD_TX_0
+        .rx_pad = UART_PAD_RX_3,
+        .tx_pad = UART_PAD_TX_2
     },
     {
-        .dev    = &SERCOM5->USART,
-        .rx_pin = GPIO_PIN(PA,23),
-        .tx_pin = GPIO_PIN(PA,22),
-        .mux    = GPIO_MUX_D,
-        .rx_pad = UART_PAD_RX_1,
-        .tx_pad = UART_PAD_TX_0
+        .dev    = &SERCOM0->USART,
+        .rx_pin = GPIO_PIN(PA,11),
+        .tx_pin = GPIO_PIN(PA,10),
+        .mux    = GPIO_MUX_C,
+        .rx_pad = UART_PAD_RX_3,
+        .tx_pad = UART_PAD_TX_2
     }
 };
 
 /* interrupt function name mapping */
-#define UART_0_ISR          isr_sercom0
-#define UART_1_ISR          isr_sercom5
+#define UART_0_ISR          isr_sercom5
+#define UART_1_ISR          isr_sercom0
 
 #define UART_NUMOF          (sizeof(uart_config) / sizeof(uart_config[0]))
 /** @} */
@@ -135,7 +137,7 @@ static const uart_conf_t uart_config[] = {
  */
 #define PWM_0_EN            1
 #define PWM_1_EN            1
-#define PWM_MAX_CHANNELS    3
+#define PWM_MAX_CHANNELS    2
 /* for compatibility with test application */
 #define PWM_0_CHANNELS      PWM_MAX_CHANNELS
 #define PWM_1_CHANNELS      PWM_MAX_CHANNELS
@@ -143,20 +145,18 @@ static const uart_conf_t uart_config[] = {
 /* PWM device configuration */
 static const pwm_conf_t pwm_config[] = {
 #if PWM_0_EN
+    {TCC0, {
+        /* GPIO pin, MUX value, TCC channel */
+        { GPIO_PIN(PA, 8), GPIO_MUX_E,  0 },
+        { GPIO_PIN(PA, 9), GPIO_MUX_E,  1 },
+    }},
+#endif
+#if PWM_1_EN
     {TCC1, {
         /* GPIO pin, MUX value, TCC channel */
         { GPIO_PIN(PA, 6), GPIO_MUX_E, 0 },
         { GPIO_PIN(PA, 7), GPIO_MUX_E, 1 },
-        { GPIO_UNDEF, (gpio_mux_t)0, 2 }
     }},
-#endif
-#if PWM_1_EN
-    {TCC0, {
-        /* GPIO pin, MUX value, TCC channel */
-        { GPIO_PIN(PA, 16), GPIO_MUX_F, 0 },
-        { GPIO_PIN(PA, 18), GPIO_MUX_F, 2 },
-        { GPIO_PIN(PA, 19), GPIO_MUX_F, 3 }
-    }}
 #endif
 };
 
@@ -165,40 +165,41 @@ static const pwm_conf_t pwm_config[] = {
 /** @} */
 
 /**
+ * @name ADC configuration
+ * @{
+ */
+#define ADC_CONFIG {            \
+    { GPIO_PIN(PA, 2), 0, 0  }, \
+    { GPIO_PIN(PB, 8), 0, 2  }, \
+    { GPIO_PIN(PB, 9), 0, 3  }, \
+    { GPIO_PIN(PA, 4), 0, 4  }, \
+    { GPIO_PIN(PA, 5), 0, 5  }, \
+    { GPIO_PIN(PB, 2), 0, 10 }}
+
+#define ADC_NUMOF           (6)
+/** @} */
+
+/**
  * @name SPI configuration
  * @{
  */
-#define SPI_NUMOF          (2)
+#define SPI_NUMOF          (1)
 #define SPI_0_EN           1
-#define SPI_1_EN           1
 
 /*      SPI0             */
-#define SPI_0_DEV           SERCOM4->SPI
-#define SPI_IRQ_0           SERCOM4_IRQn
-#define SPI_0_GCLK_ID       SERCOM4_GCLK_ID_CORE
+#define SPI_0_DEV          SERCOM4->SPI
+#define SPI_IRQ_0          SERCOM4_IRQn
+#define SPI_0_GCLK_ID      SERCOM4_GCLK_ID_CORE
 /* SPI 0 pin configuration */
-#define SPI_0_SCLK          GPIO_PIN(PC, 18)
-#define SPI_0_SCLK_MUX      GPIO_MUX_F
-#define SPI_0_MISO          GPIO_PIN(PC, 19)
-#define SPI_0_MISO_MUX      GPIO_MUX_F
-#define SPI_0_MISO_PAD      SPI_PAD_MISO_0
-#define SPI_0_MOSI          GPIO_PIN(PB, 30)
-#define SPI_0_MOSI_MUX      GPIO_MUX_F
-#define SPI_0_MOSI_PAD      SPI_PAD_MOSI_2_SCK_3
+#define SPI_0_SCLK         GPIO_PIN(PB, 11)
+#define SPI_0_SCLK_MUX     GPIO_MUX_D
+#define SPI_0_MISO         GPIO_PIN(PA, 12)
+#define SPI_0_MISO_MUX     GPIO_MUX_D
+#define SPI_0_MISO_PAD     SPI_PAD_MISO_0
+#define SPI_0_MOSI         GPIO_PIN(PB, 10)
+#define SPI_0_MOSI_MUX     GPIO_MUX_D
+#define SPI_0_MOSI_PAD     SPI_PAD_MOSI_2_SCK_3
 
-/*      SPI1             */
-#define SPI_1_DEV           SERCOM5->SPI
-#define SPI_IRQ_1           SERCOM5_IRQn
-#define SPI_1_GCLK_ID       SERCOM5_GCLK_ID_CORE
-/* SPI 1 pin configuration */
-#define SPI_1_SCLK          GPIO_PIN(PB, 23)
-#define SPI_1_SCLK_MUX      GPIO_MUX_D
-#define SPI_1_MISO          GPIO_PIN(PB, 02)
-#define SPI_1_MISO_MUX      GPIO_MUX_D
-#define SPI_1_MISO_PAD      SPI_PAD_MISO_0
-#define SPI_1_MOSI          GPIO_PIN(PB, 22)
-#define SPI_1_MOSI_MUX      GPIO_MUX_D
-#define SPI_1_MOSI_PAD      SPI_PAD_MOSI_2_SCK_3
 /** @} */
 
 /**
@@ -219,9 +220,9 @@ static const pwm_conf_t pwm_config[] = {
 #define I2C_0_GCLK_ID       SERCOM3_GCLK_ID_CORE
 #define I2C_0_GCLK_ID_SLOW  SERCOM3_GCLK_ID_SLOW
 /* I2C 0 pin configuration */
-#define I2C_0_SDA           GPIO_PIN(PA, 16)
-#define I2C_0_SCL           GPIO_PIN(PA, 17)
-#define I2C_0_MUX           GPIO_MUX_D
+#define I2C_0_SDA           GPIO_PIN(PA, 22)
+#define I2C_0_SCL           GPIO_PIN(PA, 23)
+#define I2C_0_MUX           GPIO_MUX_C
 
 /**
  * @name RTC configuration
