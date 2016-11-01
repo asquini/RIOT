@@ -76,6 +76,9 @@ endif
 ifneq (,$(filter gnrc_pktbuf_static,$(USEMODULE)))
     DIRS += pktbuf_static
 endif
+ifneq (,$(filter gnrc_priority_pktqueue,$(USEMODULE)))
+    DIRS += priority_pktqueue
+endif
 ifneq (,$(filter gnrc_pktdump,$(USEMODULE)))
     DIRS += pktdump
 endif
@@ -129,6 +132,9 @@ ifneq (,$(filter gnrc_zep,$(USEMODULE)))
 endif
 ifneq (,$(filter gnrc_tftp,$(USEMODULE)))
     DIRS += application_layer/tftp
+endif
+ifneq (,$(filter gcoap,$(USEMODULE)))
+    DIRS += application_layer/coap
 endif
 
 include $(RIOTBASE)/Makefile.base
