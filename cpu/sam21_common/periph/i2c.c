@@ -27,7 +27,7 @@
 #include "sched.h"
 #include "thread.h"
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG    (1)
 #include "debug.h"
 
 /* guard file in case no I2C device is defined */
@@ -76,7 +76,7 @@ int i2c_init_master(i2c_t dev, i2c_speed_t speed)
     gpio_mux_t mux;
     uint32_t clock_source_speed = 0;
     uint8_t sercom_gclk_id = 0;
-//    uint8_t sercom_gclk_id_slow = 0;
+    //uint8_t sercom_gclk_id_slow = 0;
 
     uint32_t timeout_counter = 0;
     int32_t tmp_baud;
@@ -89,8 +89,8 @@ int i2c_init_master(i2c_t dev, i2c_speed_t speed)
             pin_scl = I2C_0_SCL;
             mux = I2C_0_MUX;
             clock_source_speed = CLOCK_CORECLOCK;
-          /*  sercom_gclk_id = I2C_0_GCLK_ID;
-            sercom_gclk_id_slow = I2C_0_GCLK_ID_SLOW ;*/
+            sercom_gclk_id = I2C_0_GCLK_ID;
+            /*sercom_gclk_id_slow = I2C_0_GCLK_ID_SLOW ;*/
             break;
 #endif
         default:
@@ -106,7 +106,8 @@ int i2c_init_master(i2c_t dev, i2c_speed_t speed)
     while(I2CSercom->SYNCBUSY.reg & SERCOM_I2CM_SYNCBUSY_MASK) {}
 
     /* Turn on power manager for sercom */
-    MCLK->APBCMASK.reg |= (MCLK_APBCMASK_SERCOM1 << (sercom_gclk_id - SERCOM1_GCLK_ID_CORE));
+    /* OK for SERCOM0-4 */
+    MCLK->APBCMASK.reg |= (MCLK_APBCMASK_SERCOM0 << (sercom_gclk_id - SERCOM0_GCLK_ID_CORE));
 
     /* I2C using CLK GEN 0 */
     GCLK->PCHCTRL[19].reg = (GCLK_PCHCTRL_CHEN |
