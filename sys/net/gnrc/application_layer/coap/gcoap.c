@@ -27,11 +27,7 @@
 #include "debug.h"
 
 /** @brief Stack size for module thread */
-#if ENABLE_DEBUG
-#define GCOAP_STACK_SIZE (THREAD_STACKSIZE_DEFAULT + THREAD_EXTRA_STACKSIZE_PRINTF)
-#else
-#define GCOAP_STACK_SIZE (THREAD_STACKSIZE_DEFAULT)
-#endif
+#define GCOAP_STACK_SIZE (THREAD_STACKSIZE_DEFAULT + DEBUG_EXTRA_STACKSIZE)
 
 /* Internal functions */
 static void *_event_loop(void *arg);
@@ -550,7 +546,7 @@ size_t gcoap_req_send(uint8_t *buf, size_t len, ipv6_addr_t *addr, uint16_t port
         memo->resp_handler = resp_handler;
 
         size_t res = _send_buf(buf, len, addr, port);
-        if (res && GCOAP_NON_TIMEOUT) {
+        if (res && (GCOAP_NON_TIMEOUT > 0)) {
             /* start response wait timer */
             memo->timeout_msg.type        = GCOAP_NETAPI_MSG_TYPE_TIMEOUT;
             memo->timeout_msg.content.ptr = (char *)memo;
