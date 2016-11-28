@@ -110,7 +110,8 @@ int i2c_init_master(i2c_t dev, i2c_speed_t speed)
     MCLK->APBCMASK.reg |= (MCLK_APBCMASK_SERCOM0 << (sercom_gclk_id - SERCOM0_GCLK_ID_CORE));
 
     /* I2C using CLK GEN 0 */
-    GCLK->PCHCTRL[19].reg = (GCLK_PCHCTRL_CHEN |
+    /* OK for SERCOM0-4 */
+    GCLK->PCHCTRL[18 + (sercom_gclk_id - SERCOM0_GCLK_ID_CORE)].reg = (GCLK_PCHCTRL_CHEN |
                          GCLK_PCHCTRL_GEN_GCLK0  );
     while (GCLK->SYNCBUSY.bit.GENCTRL) {}
 
