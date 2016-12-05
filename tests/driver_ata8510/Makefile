@@ -29,6 +29,8 @@ CFLAGS += -DDEVELHELP
 
 RX ?= 0
 TX ?= 0
+SERVICE ?= 0
+CHANNEL ?= 0
 ifeq ($(TX),1)
   RX = 0
   ID8510 ?= 1
@@ -37,6 +39,18 @@ endif
 ifeq ($(RX),1)
   TX = 0
   CFLAGS += -DTHREADCHECKRXERRORS
+endif
+ifeq ($(SERVICE),1)
+  CFLAGS += -DSERVICE1
+endif
+ifeq ($(SERVICE),2)
+  CFLAGS += -DSERVICE2
+endif
+ifeq ($(CHANNEL),1)
+  CFLAGS += -DCHAN1
+endif
+ifeq ($(CHANNEL),2)
+  CFLAGS += -DCHAN2
 endif
 
 include $(RIOTBASE)/Makefile.include

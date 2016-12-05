@@ -38,7 +38,7 @@
 
 #include "common.h"
 
-#define MAX_LINE    (80)
+#define MAX_LINE    (132)
 
 /* set intervals */
 #define INTERVALTX (5U * SEC_IN_USEC)
@@ -48,7 +48,7 @@
 #define INTERVALTXRANDMIN 1000000U
 #define INTERVALCHECKRX 200000U
 
-#define ENABLE_DEBUG (0)
+#define ENABLE_DEBUG (1)
 #include "debug.h"
 
 #include "msg.h"
@@ -171,8 +171,21 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
     while (1) {
         xtimer_periodic_wakeup(&last_wakeup, time_between_tx);
         printf("state: %d\n", ata8510_get_state(dev));
-        dev->service = 2;
+        dev->service = 0;
         dev->channel = 0;
+
+#ifdef SERVICE1
+		dev->service = 1;
+#endif
+#ifdef SERVICE2
+		dev->service = 2;
+#endif
+#ifdef CHAN1
+		dev->channel = 1;
+#endif
+#ifdef CHAN2
+		dev->channel = 2;
+#endif
 
         sprintf(msg2, "%d%06d_", ID8510, numtx);
         checksum = fletcher16((const uint8_t*)msg2, strlen(msg2));
@@ -182,7 +195,7 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
         msg[ATA8510_MAX_PKT_LENGTH-1]='.';
         msg[ATA8510_MAX_PKT_LENGTH]=0; // terminate msg (just needed for printf)
         numtx++;
-        printf("Sending %d bytes using service %d:\n%s\n", ATA8510_MAX_PKT_LENGTH, dev->service, msg);
+        printf("Sending %d bytes using service %d channel %d:\n%s\n", ATA8510_MAX_PKT_LENGTH, dev->service, dev->channel, msg);
 
         // test listen before talk
         (void)myturn;
@@ -208,7 +221,7 @@ void *thread_tx_rand(void *arg)     // Still has a problem on the very first mes
         ((netdev2_t *)dev)->driver->send((netdev2_t *)dev, vector, 1);
 
         time_between_tx = (dev->service==0 ? 5 : 1 ) * SEC_IN_USEC;
-        time_between_tx = 0U;
+        time_between_tx = 200000U;
         //time_between_tx = 1000000U + (random_uint32() % 3000000 ); // between 1 and 4 s
         last_wakeup = xtimer_now();
    }
@@ -247,7 +260,7 @@ void my_recv(netdev2_t *dev)
         ((ata8510_t *)dev)->service,
         ((ata8510_t *)dev)->channel
     );
-    od_hex_dump(buffer, data_len, 0);
+//    od_hex_dump(buffer, data_len, 0);
     DEBUG("txt:\n     ");
     for (i = 0; i < data_len; i++) {
         if ((buffer[i] > 0x1F) && (buffer[i] < 0x80)) {
