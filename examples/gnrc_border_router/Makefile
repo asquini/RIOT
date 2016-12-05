@@ -11,7 +11,7 @@ BOARD_INSUFFICIENT_MEMORY := airfy-beacon cc2650stk msb-430 msb-430h pca10000 pc
                              nrf51dongle nrf6310 nucleo-f103 nucleo-f334 \
                              spark-core stm32f0discovery telosb \
                              weio wsn430-v1_3b wsn430-v1_4 yunjia-nrf51822 z1 nucleo-f072 \
-                             nucleo-f030 nucleo-f070
+                             nucleo-f030 nucleo-f070 microbit calliope-mini
 
 # use ethos (ethernet over serial) for network communication and stdio over
 # UART, but not on native, as native has a tap interface towards the host.
@@ -64,14 +64,14 @@ host-tools:
 	$(AD)env -u CC -u CFLAGS make -C $(RIOTBASE)/dist/tools
 
 # Set a custom channel if needed
-ifeq (,$(filter cc110x,$(USEMODULE)))     # radio is cc110x sub-GHz
+ifneq (,$(filter cc110x,$(USEMODULE)))          # radio is cc110x sub-GHz
   DEFAULT_CHANNEL ?= 0
   CFLAGS += -DCC110X_DEFAULT_CHANNEL=$(DEFAULT_CHANNEL)
 else
-  ifeq (,$(filter at86rf212b,$(USEMODULE)))   # radio is IEEE 802.15.4 sub-GHz
+  ifneq (,$(filter at86rf212b,$(USEMODULE)))    # radio is IEEE 802.15.4 sub-GHz
     DEFAULT_CHANNEL ?= 5
     CFLAGS += -DIEEE802154_DEFAULT_SUBGHZ_CHANNEL=$(DEFAULT_CHANNEL)
-  else                                      # radio is IEEE 802.15.4 2.4 GHz
+  else                                          # radio is IEEE 802.15.4 2.4 GHz
     DEFAULT_CHANNEL ?= 26
     CFLAGS += -DIEEE802154_DEFAULT_CHANNEL=$(DEFAULT_CHANNEL)
   endif

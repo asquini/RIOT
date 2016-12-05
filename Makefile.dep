@@ -19,6 +19,11 @@ ifneq (,$(filter nhdp,$(USEMODULE)))
   USEMODULE += oonf_rfc5444
 endif
 
+ifneq (,$(filter sntp,$(USEMODULE)))
+  USEMODULE += gnrc_sock_udp
+  USEMODULE += xtimer
+endif
+
 ifneq (,$(filter gnrc_netdev_default,$(USEMODULE)))
   USEMODULE += gnrc_netif
   USEMODULE += gnrc_netdev2
@@ -31,7 +36,7 @@ endif
 
 ifneq (,$(filter gnrc_uhcpc,$(USEMODULE)))
     USEMODULE += uhcpc
-    USEMODULE += gnrc_conn_udp
+    USEMODULE += gnrc_sock_udp
     USEMODULE += fmt
 endif
 
@@ -89,6 +94,10 @@ ifneq (,$(filter gnrc_zep,$(USEMODULE)))
   USEMODULE += gnrc_udp
   USEMODULE += random
   USEMODULE += xtimer
+endif
+
+ifneq (,$(filter gcoap,$(USEMODULE)))
+  USEMODULE += gnrc_udp
 endif
 
 ifneq (,$(filter gnrc_tftp,$(USEMODULE)))
@@ -526,6 +535,7 @@ endif
 
 ifneq (,$(filter xtimer,$(USEMODULE)))
     FEATURES_REQUIRED += periph_timer
+    USEMODULE += div
 endif
 
 ifneq (,$(filter saul_reg,$(USEMODULE)))
